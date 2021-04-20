@@ -32,7 +32,7 @@
 <meta property="og:description" content="0x0 概述漏洞样本来自yuki chen的github 漏洞成因：JavaScript中的垃圾回收流程内，可以通过VBScript Class_Terminator触发回调，而JIT引擎未考虑到这一点。因此在JIT代码中可以通过这种方式触发回调。 并且在Jscript9对下方代码时进行JIT优化时，会触发冗余消除机制:  ... arr[1,2,3] b &#x3D; arr[0] ... c &#x3D; arr">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-04-18T09:00:00.000Z">
-<meta property="article:modified_time" content="2021-04-20T02:50:36.033Z">
+<meta property="article:modified_time" content="2021-04-20T03:45:49.342Z">
 <meta property="article:author" content="theme">
 <meta property="article:tag" content="nothing">
 <meta name="twitter:card" content="summary">
@@ -277,7 +277,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Jscript9 GC JIT Calc<span class="exturl post-edit-link" data-url="aHR0cHM6Ly9naXRodWIuY29tL25leHQtdGhlbWUvdGhlbWUtbmV4dC1kb2NzL2VkaXQvbWFzdGVyL3NvdXJjZS9fcG9zdHMvSnNjcmlwdDkgR0MgSklUIENhbGMubWQ=" title="Edit this post"><i class="fa fa-pen-nib"></i></span>
+          Jscript9 GC JIT Calc
         </h1>
 
         <div class="post-meta-container">
@@ -688,9 +688,9 @@ NexT.utils.loadComments('.gitalk-container', () => {
     var gitalk = new Gitalk({
       clientID    : 'baadf2c2ad28974ca4f2',
       clientSecret: 'b8b7996896ca1cee6ff71eabc502cb96a2e73af2',
-      repo        : 'comments',
+      repo        : 'theme-me.github.io',
       owner       : 'theme-me',
-      admin       : ['theme'],
+      admin       : ['hi'],
       id          : '234863348014a4e34ba835c820640728',
       proxy       : 'https://cors-anywhere.herokuapp.com/https://github.com/login/oauth/access_token',
         language: 'zh-CN',
