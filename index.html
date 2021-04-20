@@ -299,7 +299,7 @@
     
     <div class="post-body" itemprop="articleBody">
           <h2 id="0x0-概述"><a href="#0x0-概述" class="headerlink" title="0x0 概述"></a>0x0 概述</h2><p>漏洞样本来自<span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3NtZ29yZWxpay9XaW5kb3dzLVJDRS1leHBsb2l0cy90cmVlL21hc3Rlci9Eb2N1bWVudHMvQWNyb2JhdA==">github<i class="fa fa-external-link-alt"></i></span>。</p>
-<p>漏洞成因：ARDC在解析JP2K文件（由嵌套的JP2 BOX结构组成）时，处理<strong>jp2h box</strong>中的<strong>cmap box</strong>时，会创建大小由字段长度指定的<strong>cmap对象</strong>。该对象原本作用应该是存放堆块指针，并在使用完毕后遍历释放其中堆块。但是在对其进行遍历时，使用的循环计数却来自<strong>jp2h box</strong>中的<strong>pclr box</strong>+0x2处的byte值，因此在循环释放时就可以通过人工构造导致越界读。<br><img src="https://github.com/theme-me/theme-me.github.io/tree/master/images/jp2k.png" alt="JP2K文件格式" loading="lazy"></p>
+<p>漏洞成因：ARDC在解析JP2K文件（由嵌套的JP2 BOX结构组成）时，处理<strong>jp2h box</strong>中的<strong>cmap box</strong>时，会创建大小由字段长度指定的<strong>cmap对象</strong>。该对象原本作用应该是存放堆块指针，并在使用完毕后遍历释放其中堆块。但是在对其进行遍历时，使用的循环计数却来自<strong>jp2h box</strong>中的<strong>pclr box</strong>+0x2处的byte值，因此在循环释放时就可以通过人工构造导致越界读。<br><img src="https://theme-me.github.io/images/jp2k.png" alt="JP2K文件格式" loading="lazy"></p>
 <p>该漏洞样本中，利用JavaScript实现UAF，继而将越界读变成了<span class="exturl" data-url="aHR0cHM6Ly90d2l0dGVyLmNvbS9rbG90eGw0MDQvc3RhdHVzLzk5ODc3NzM5MzI2MjE2NjAxNw==">arbitrary free<i class="fa fa-external-link-alt"></i></span>，最终在关闭沙箱状态下实现任意代码执行。</p>
 <h2 id="0x1-漏洞分析"><a href="#0x1-漏洞分析" class="headerlink" title="0x1 漏洞分析"></a>0x1 漏洞分析</h2><h3 id="内存布局"><a href="#内存布局" class="headerlink" title="内存布局"></a><strong>内存布局</strong></h3><ol>
 <li><p>在pdf中创建一个button（<strong>13 0 obj</strong>）并设置其显示属性为隐藏，将jp2k图像（<strong>23 0 obj</strong>）嵌入在button里。</p>
@@ -593,7 +593,7 @@ mywrite(objescript+0x598,offset(&quot;sp1&quot;)-0x640c0000+dll_base);
 app.alert(&quot;HaHa, this will trigger the ROP&quot;);
 </code></pre>
 <h2 id="0x2-利用分析"><a href="#0x2-利用分析" class="headerlink" title="0x2 利用分析"></a>0x2 利用分析</h2><p>ROP的功能很简单，就是通过rop调用VirtualProtect执行dlldata中硬编码的shellcode，shellcode功能为调用MessageBox，具体分析参考<span class="exturl" data-url="aHR0cHM6Ly9ibG9nLm1vcnBoaXNlYy5jb20vY3JpdGljYWwtYWxlcnQtY3ZlLTIwMTgtNDk5MC1hY3JvYmF0LXJlYWRlci1kYy1kb3VibGUtZnJlZS12dWxuZXJhYmlsaXR5">这篇文章<i class="fa fa-external-link-alt"></i></span>。</p>
-<p>调试时没有使用对应的版本，因此跟着文章构造了一遍ROP，最终弹出MessageBox的截图：<br><img src="https://github.com/theme-me/theme-me.github.io/tree/master/images/2018-4990.png" alt="MessageBox" loading="lazy"></p>
+<p>调试时没有使用对应的版本，因此跟着文章构造了一遍ROP，最终弹出MessageBox的截图：<br><img src="https://theme-me.github.io/images/2018-4990.png" alt="MessageBox" loading="lazy"></p>
 <h2 id="0x3-总结"><a href="#0x3-总结" class="headerlink" title="0x3 总结"></a>0x3 总结</h2><p>这个洞的分析文章比较多，所有的关键点都被分析清楚了。并且这时候的ARDC还没有开CFG，用来学习写利用很方便。</p>
 
       
