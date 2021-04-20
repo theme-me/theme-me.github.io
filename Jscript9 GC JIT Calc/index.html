@@ -556,7 +556,6 @@ if (cmd_addr in target_arr) &#123; &#125;
 
 
 
-    <div class="comments gitalk-container"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -679,27 +678,6 @@ if (mermaidElements.length) {
 
   
 
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.css">
-
-<script>
-NexT.utils.loadComments('.gitalk-container', () => {
-  NexT.utils.getScript('https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.min.js', () => {
-    var gitalk = new Gitalk({
-      clientID    : 'baadf2c2ad28974ca4f2',
-      clientSecret: '95d43d6464402a9eb7a9be8d8e2b8ed274e6d5d2',
-      repo        : 'theme-me.github.io',
-      owner       : 'theme-me',
-      admin       : ['hi'],
-      id          : '234863348014a4e34ba835c820640728',
-      proxy       : 'https://cors-anywhere.herokuapp.com/https://github.com/login/oauth/access_token',
-        language: 'zh-CN',
-      distractionFreeMode: true
-    });
-    gitalk.render(document.querySelector('.gitalk-container'));
-  }, window.Gitalk);
-});
-</script>
 
     </div>
 </body>
